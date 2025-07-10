@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestione Pazienti</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4 flex flex-col items-center min-h-screen">
+
+<div id="authView" class="w-full max-w-md bg-white p-6 rounded shadow">
+  <h2 id="authTitle" class="text-xl font-bold mb-4 text-center">Login</h2>
+  <form id="authForm" class="space-y-4">
+    <input type="email" id="email" placeholder="Email" class="w-full p-2 border rounded" required />
+    <input type="password" id="password" placeholder="Password" class="w-full p-2 border rounded" required />
+    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">Accedi</button>
+  </form>
+  <p class="text-sm text-center mt-2">
+    <button id="toggleAuth" class="text-blue-600 underline">Passa a registrazione</button>
+  </p>
+</div>
+
+<div id="appView" class="hidden w-full max-w-5xl bg-white p-6 rounded shadow">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Modulo Pazienti</h1>
+    <div>
+      <span id="userEmail" class="text-sm text-gray-600 mr-2"></span>
+      <button id="logoutBtn" class="bg-red-500 text-white px-3 py-1 rounded text-sm">Logout</button>
+    </div>
+  </div>
+
+  <div class="progress-bar-container mb-4 bg-gray-200 rounded">
+    <div id="progressBar" class="progress-bar bg-blue-600 text-white text-xs text-center leading-5 rounded" style="width: 10%;">Passo 1 di 3</div>
+  </div>
+
+  <form id="multiStepForm" class="space-y-6">
+    <!-- Step 1, 2, 3 verranno qui inseriti -->
+    <!-- STEP 1: ANAGRAFICA -->
+    <div id="step1" class="form-step">
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">Dati Anagrafici</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1 text-sm font-medium">Data di Nascita</label>
+          <input type="date" name="data_nascita" class="input-field w-full p-2 border rounded" />
+        </div>
+        <div>
+          <label class="block mb-1 text-sm font-medium">Sesso</label>
+          <div class="flex gap-4">
+            <label><input type="radio" name="sesso" value="M" class="mr-1" />Maschio</label>
+            <label><input type="radio" name="sesso" value="F" class="mr-1" />Femmina</label>
+          </div>
+        </div>
+        <div>
+          <label class="block mb-1 text-sm font-medium">Luogo di Nascita</label>
+          <input type="text" name="luogo_nascita" class="input-field w-full p-2 border rounded" />
+        </div>
+        <div>
+          <label class="block mb-1 text-sm font-medium">Comune di Residenza</label>
+          <input type="text" name="comune_residenza" class="input-field w-full p-2 border rounded" />
+        </div>
+        <div>
+          <label class="block mb-1 text-sm font-medium">Durata Residenza (anni)</label>
+          <input type="number" name="durata_residenza" class="input-field w-full p-2 border rounded" min="0" />
+        </div>
+        <div>
+          <label class="block mb-1 text-sm font-medium">Domicilio</label>
+          <input type="text" name="domicilio" class="input-field w-full p-2 border rounded" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block mb-1 text-sm font-medium">Luogo di Lavoro</label>
+          <input type="text" name="luogo_lavoro" class="input-field w-full p-2 border rounded" />
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-4 py-2 rounded">Avanti</button>
+      </div>
+    </div>
+    <!-- STEP 2: LABORATORIO -->
+    <div id="step2" class="form-step hidden">
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">Dati di Laboratorio</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input type="number" name="egfr" step="0.01" placeholder="eGFR (ml/min/1.73m²)" class="input-field p-2 border rounded" />
+        <input type="number" name="acr" step="0.01" placeholder="ACR (mg/g)" class="input-field p-2 border rounded" />
+        <input type="number" name="glicemia" step="1" placeholder="Glicemia (mg/dL)" class="input-field p-2 border rounded" />
+        <input type="number" name="hba1c" step="0.01" placeholder="HbA1c (%)" class="input-field p-2 border rounded" />
+        <input type="number" name="bilirubina_totale" placeholder="Bilirubina Totale (mg/dL)" class="input-field p-2 border rounded" />
+        <input type="number" name="ast" placeholder="AST (U/L)" class="input-field p-2 border rounded" />
+        <input type="number" name="alt" placeholder="ALT (U/L)" class="input-field p-2 border rounded" />
+        <input type="number" name="alp" placeholder="ALP (U/L)" class="input-field p-2 border rounded" />
+        <input type="number" name="ggt" placeholder="GGT (U/L)" class="input-field p-2 border rounded" />
+        <input type="number" name="creatinina" placeholder="Creatinina (mg/dL)" class="input-field p-2 border rounded" />
+        <input type="number" name="hb" placeholder="Hb (g/dL)" class="input-field p-2 border rounded" />
+        <input type="number" name="pt" placeholder="PT (sec)" class="input-field p-2 border rounded" />
+        <input type="number" name="inr" placeholder="INR" class="input-field p-2 border rounded" />
+        <input type="number" name="plt" placeholder="PLT (x10³/μL)" class="input-field p-2 border rounded" />
+        <input type="number" name="albumina" placeholder="Albumina (g/dL)" class="input-field p-2 border rounded" />
+        <input type="number" name="sodio" placeholder="Sodio (mEq/L)" class="input-field p-2 border rounded" />
+        <input type="number" name="wbc" placeholder="WBC (x10³/μL)" class="input-field p-2 border rounded" />
+        <input type="number" name="neutrofili" placeholder="Neutrofili (%)" class="input-field p-2 border rounded" />
+        <input type="number" name="linfociti" placeholder="Linfociti (%)" class="input-field p-2 border rounded" />
+      </div>
+
+      <div class="mt-6 flex justify-between">
+        <button type="button" onclick="prevStep()" class="bg-gray-400 text-white px-4 py-2 rounded">Indietro</button>
+        <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-4 py-2 rounded">Avanti</button>
+      </div>
+    </div>
+    <!-- STEP 3: RISCHIO CARDIOVASCOLARE -->
+    <div id="step3" class="form-step hidden">
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">Rischio Cardiovascolare</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label><input type="checkbox" name="infarto_miocardico" class="mr-2" /> Infarto Miocardico Pregresso</label>
+        <label><input type="checkbox" name="sindrome_coronarica" class="mr-2" /> Sindrome Coronarica Acuta</label>
+        <label><input type="checkbox" name="rivascolarizzazione_coron" class="mr-2" /> Rivascolarizzazione Coronarica</label>
+        <label><input type="checkbox" name="rivascolarizzazione_art" class="mr-2" /> Rivascolarizzazione Arterie Periferiche</label>
+        <label><input type="checkbox" name="stroke" class="mr-2" /> Stroke Ischemico/Emorragico</label>
+        <label><input type="checkbox" name="tia" class="mr-2" /> TIA (Attacco Ischemico Transitorio)</label>
+        <label><input type="checkbox" name="aneurisma_aorta" class="mr-2" /> Aneurisma Aorta Addominale</label>
+        <label><input type="checkbox" name="arteriopatia" class="mr-2" /> Arteriopatia Obliterante Arti Inferiori</label>
+        <label><input type="checkbox" name="placca_angiotac" class="mr-2" /> Placca Aterosclerotica AngioTAC</label>
+        <label><input type="checkbox" name="placca_eco" class="mr-2" /> Placca Aterosclerotica EcoDoppler TSA</label>
+        <label><input type="checkbox" name="fh" class="mr-2" /> FH (Ipercolesterolemia Familiare)</label>
+        <label><input type="checkbox" name="fumo" id="fumoCheckbox"> Fumatore</label>
+
+        <input type="number" name="colesterolo" placeholder="Colesterolo Totale (mg/dL)" class="input-field p-2 border rounded" />
+        <input type="number" name="pressionearteriosasistolica" placeholder="Pressione Sistolica (mmHg)" class="input-field p-2 border rounded" />
+
+        <label><input type="checkbox" name="diabete_1" id="diabete_1" class="mr-2" /> Diabete Tipo 1</label>
+        <label><input type="checkbox" name="diabete_2" id="diabete_2" class="mr-2" /> Diabete Tipo 2</label>
+      </div>
+
+      <div id="diabeteExtraFields" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 hidden border-t pt-4">
+        <input type="date" name="comparsa_diabete" placeholder="Data Comparsa Diabete" class="input-field p-2 border rounded" />
+        <label><input type="checkbox" name="neuropatia_diabetica" class="mr-2" /> Neuropatia Diabetica</label>
+        <label><input type="checkbox" name="retinopatia_diabetica" class="mr-2" /> Retinopatia Diabetica</label>
+        <label><input type="checkbox" name="piede_diabetico" class="mr-2" /> Piede Diabetico</label>
+      </div>
+
+      <div class="mt-6 flex justify-between">
+        <button type="button" onclick="prevStep()" class="bg-gray-400 text-white px-4 py-2 rounded">Indietro</button>
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Salva e Concludi</button>
+      </div>
+    </div>
+  </form>
+  <!-- Tabella pazienti -->
+  <div class="mt-8">
+    <h2 class="text-xl font-bold mb-2">Elenco Pazienti</h2>
+    <table class="w-full table-auto border">
+      <thead class="bg-gray-200 text-sm">
+        <tr>
+          <th class="border p-2">Data Nascita</th>
+          <th class="border p-2">Sesso</th>
+          <th class="border p-2">Comune</th>
+          <th class="border p-2">Azioni <button class="bg-green-600 text-white px-2 py-1 rounded text-xs" id="exportBtn">Esporta</button>
+</th>
+        </tr>
+      </thead>
+      <tbody id="patientTableBody" class="text-sm"></tbody>
+    </table>
+  </div>
+</div> <!-- fine appView -->
+
+<!-- SCRIPT -->
+<script>
+const API = 'https://backend-pfas.onrender.com:8000';
+let userId = null;
+let editingId = null;
+let currentStep = 1;
+const totalSteps = 3;
+
+const progressBar = document.getElementById('progressBar');
+const steps = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
+
+function updateProgressBar() {
+  const percent = (currentStep - 1) / (totalSteps - 1) * 100;
+  progressBar.style.width = (percent==0) ? '10%' : percent + '%';
+  progressBar.textContent = `Passo ${currentStep} di ${totalSteps}`;
+}
+
+function nextStep() {
+  if (currentStep < totalSteps) {
+    steps[currentStep - 1].classList.add('hidden');
+    currentStep++;
+    steps[currentStep - 1].classList.remove('hidden');
+    updateProgressBar();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    steps[currentStep - 1].classList.add('hidden');
+    currentStep--;
+    steps[currentStep - 1].classList.remove('hidden');
+    updateProgressBar();
+  }
+}
+
+function resetForm() {
+  document.getElementById('multiStepForm').reset();
+  steps.forEach(s => s.classList.add('hidden'));
+  currentStep = 1;
+  steps[0].classList.remove('hidden');
+  updateProgressBar();
+}
+
+function toggleDiabeteFields() {
+  const show = document.getElementById('diabete_1').checked || document.getElementById('diabete_2').checked;
+  document.getElementById('diabeteExtraFields').style.display = show ? 'grid' : 'none';
+}
+
+document.getElementById('diabete_1').addEventListener('change', toggleDiabeteFields);
+document.getElementById('diabete_2').addEventListener('change', toggleDiabeteFields);
+
+document.getElementById('authForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const endpoint = isLoginMode ? '/login' : '/register';
+  const res = await fetch(API + endpoint, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email, password})
+  });
+  const data = await res.json();
+  console.log(res);
+    console.log(data);
+  if (res.ok) {
+    
+    userId = data.user_id;
+    localStorage.setItem('user_id', userId);
+    localStorage.setItem('user_email', data.email);
+
+    document.getElementById('authView').classList.add('hidden');
+    document.getElementById('appView').classList.remove('hidden');
+    document.getElementById('userEmail').textContent = data.email;
+    loadPatients();
+  } else {
+    alert(data.detail || 'Errore');
+  }
+};
+
+let isLoginMode = true;
+document.getElementById('toggleAuth').onclick = () => {
+  isLoginMode = !isLoginMode;
+  document.getElementById('authTitle').textContent = isLoginMode ? 'Login' : 'Registrazione';
+  document.getElementById('toggleAuth').textContent = isLoginMode ? 'Passa a registrazione' : 'Passa a login';
+};
+
+document.getElementById('logoutBtn').onclick = () => {
+  userId = null;
+  localStorage.removeItem('user_id');
+  localStorage.removeItem('user_email');
+
+  document.getElementById('authView').classList.remove('hidden');
+  document.getElementById('appView').classList.add('hidden');
+};
+
+document.getElementById('multiStepForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const body = { user_id: userId };
+  for (const [key, value] of formData.entries()) {
+    if (form.elements[key]?.type === 'checkbox') body[key] = form.elements[key].checked;
+    else if (form.elements[key]?.type === 'number') body[key] = value === '' ? null : parseFloat(value);
+    else body[key] = value;
+  }
+  const method = editingId ? 'PUT' : 'POST';
+  const url = editingId ? `${API}/patients/${editingId}` : `${API}/patients`;
+  await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  resetForm();
+  loadPatients();
+  editingId = null;
+};
+
+async function loadPatients() {
+  const res = await fetch(`${API}/patients?user_id=${userId}`);
+  const patients = await res.json();
+  const tbody = document.getElementById('patientTableBody');
+  tbody.innerHTML = '';
+  patients.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="border p-2">${p.data_nascita || '-'}</td>
+      <td class="border p-2">${p.sesso || '-'}</td>
+      <td class="border p-2">${p.comune_residenza || '-'}</td>
+      <td class="border p-2 space-x-2">
+        <button class="bg-yellow-500 text-white px-2 py-1 rounded text-xs" onclick="editPatient(${p.id})">Modifica</button>
+        <button class="bg-red-600 text-white px-2 py-1 rounded text-xs" onclick="deletePatient(${p.id})">Elimina</button>
+        <button class="bg-green-600 text-white px-2 py-1 rounded text-xs" onclick="">Report</button>
+    </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function deletePatient(id) {
+  if (confirm('Confermi l\'eliminazione del paziente?')) {
+    await fetch(`${API}/patients/${id}`, { method: 'DELETE' });
+    loadPatients();
+  }
+}
+
+async function editPatient(id) {
+  const res = await fetch(`${API}/patients?user_id=${userId}`);
+  const patients = await res.json();
+  const p = patients.find(x => x.id === id);
+  if (!p) return;
+  editingId = id;
+  const form = document.getElementById('multiStepForm');
+  for (const key in p) {
+    if (form.elements[key]) {
+      if (form.elements[key].type === 'checkbox') form.elements[key].checked = !!p[key];
+      else form.elements[key].value = p[key];
+    }
+  }
+  steps.forEach(s => s.classList.add('hidden'));
+  steps[0].classList.remove('hidden');
+  currentStep = 1;
+  updateProgressBar();
+}
+window.addEventListener('DOMContentLoaded', () => {
+  const savedUserId = localStorage.getItem('user_id');
+  const savedEmail = localStorage.getItem('user_email');
+
+  if (savedUserId && savedEmail) {
+    userId = parseInt(savedUserId);
+    document.getElementById('authView').classList.add('hidden');
+    document.getElementById('appView').classList.remove('hidden');
+    document.getElementById('userEmail').textContent = savedEmail;
+    loadPatients();
+  }
+});
+
+document.getElementById("exportBtn").addEventListener("click", async () => {
+  try {
+    const res = await fetch(`${API}/patients?user_id=${userId}`);
+    if (!res.ok) throw new Error("Errore nel recupero dei pazienti");
+    const patients = await res.json();
+
+    exportPatients(patients);
+  } catch (e) {
+    alert("Errore durante l'esportazione: " + e.message);
+  }
+});
+
+
+function checkRequiredFields(p) {
+  const required = ['egfr', 'acr', 'data_nascita', 'sesso', 'pressionearteriosasistolica', 'colesterolo'];
+  const missing = required.filter(f => !p[f] || p[f] === '');
+  return missing;
+}
+
+function exportPatients(patients) {
+    console.log("Exporting patients:", patients);
+  const rows = [];
+  const headers = [
+    'nome', 'cognome', 'data_nascita', 'egfr', 'acr', 'hba1c', 'comparsa_diabete',
+    'infarto_miocardico', 'sindrome_coronarica', 'rivascolarizzazione_coron', 'rivascolarizzazione_art',
+    'stroke', 'tia', 'aneurisma_aorta', 'arteriopatia', 'placca_angiotac', 'placca_eco',
+    'diabete_1', 'diabete_2', 'retinopatia_diabetica', 'neuropatia_diabetica', 'piede_diabetico',
+    'fh', 'pressionearteriosasistolica', 'colesterolo', 'sesso', 'fumo',
+    'ckd', 'eta', 'anni_diabete', 'ascvd', 'presenza_diabete', 'dm', 'score1', 'score2'
+  ];
+  rows.push(headers);
+
+  const errors = [];
+
+  patients.forEach(p => {
+    const missing = checkRequiredFields(p);
+    if (missing.length) {
+      errors.push(`paziente numero: ${p.id || ''} : ${missing.join(', ')}`);
+      return;
+    }
+
+    const eta = calculateEta(p);
+    const anni_diabete = calculateAnniDiabete(p);
+    const ckd = calculateCkd(p);
+    const ascvd = calculateAscvd(p);
+    const presenza_diabete = calculatePresenzaDiabete(p, eta);
+    const dm = calculateDm(p, presenza_diabete, p.acr, eta, anni_diabete, ascvd);
+    const score1 = calculateScore1(ckd, dm, ascvd, p.fh || 0);
+    const score2 = calculateScore2(p, eta, score1);
+
+    const row = headers.map(h => {
+      if (h === 'ckd') return ckd;
+      if (h === 'eta') return eta;
+      if (h === 'anni_diabete') return anni_diabete;
+      if (h === 'ascvd') return ascvd;
+      if (h === 'presenza_diabete') return presenza_diabete;
+      if (h === 'dm') return dm;
+      if (h === 'score1') return score1;
+      if (h === 'score2') return score2;
+      return p[h] || '';
+    });
+    rows.push(row);
+  });
+
+  if (errors.length) {
+    alert("Impossibile esportare. Mancano dati per:" + errors.join('\n'));
+    return;
+  }
+
+  const csvContent = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.setAttribute('href', URL.createObjectURL(blob));
+  link.setAttribute('download', 'pazienti_export.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function yearDiff(dateString) {
+console.log(dateString);
+  if (!dateString) return 0;
+  const d = new Date(dateString);
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  console.log(m);
+  console.log(age);
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+  return age;
+}
+
+// Calculated fields
+
+function calculateCkd(p) {
+  const egfr = parseFloat(p.egfr || 0);
+  const acr = parseFloat(p.acr || 0);
+  if (egfr < 30 || (egfr <= 44 && acr >= 30)) return 2;
+  if ((egfr <= 44 && acr < 30) || (egfr <= 59 && acr <= 300) || (egfr >= 60 && acr > 300)) return 1;
+  return 0;
+}
+
+function calculateEta(p) {
+  return yearDiff(p.data_nascita);
+}
+
+function calculateAnniDiabete(p) {
+  return p.diabete_1 || p.diabete_2 ? yearDiff(p.comparsa_diabete) : 0;
+}
+
+function calculateAscvd(p) {
+  return (p.infarto_miocardico || p.sindrome_coronarica || p.rivascolarizzazione_coron || p.rivascolarizzazione_art ||
+          p.stroke || p.tia || p.aneurisma_aorta || p.arteriopatia || p.placca_angiotac || p.placca_eco) ? 1 : 0;
+}
+
+function calculatePresenzaDiabete(p, eta) {
+  return (eta > 40 && (p.diabete_1 || p.diabete_2)) ? 1 : 0;
+}
+
+function calculateDm(p, presenza_diabete, acr, eta, anni_diabete, ascvd) {
+  const hba1c = parseFloat(p.hba1c || 0);
+  const egfr = parseFloat(p.egfr || 0);
+  acr = parseFloat(acr || 0);
+  const complicanze = (acr > 30 ? 1 : 0) + (p.retinopatia_diabetica || 0) + (p.neuropatia_diabetica || 0) + (p.piede_diabetico || 0);
+
+  if (!presenza_diabete) return 0;
+
+  if (egfr < 45 || (egfr <= 59 && acr >= 30) || acr > 300 || complicanze >= 3) return 3;
+
+  if (hba1c < 7 && anni_diabete < 10 && ascvd === 0 && acr <= 30 &&
+      !p.retinopatia_diabetica && !p.neuropatia_diabetica && !p.piede_diabetico) return 1;
+
+  return 2;
+}
+
+function calculateScore1(ckd, dm, ascvd, fh) {
+  if (ckd >= 2 || dm >= 3 || ascvd === 1) return 3;
+  if (ckd === 1 || fh === 1 || dm === 2) return 2;
+  if (dm === 1) return 1;
+  return 0;
+}
+
+
+function calculateScore2(p, eta, score1) {
+  const sesso = parseInt(p.sesso || 0); // 1 = M, 2 = F
+  const fumo = parseInt(p.fumo || 0);
+  const pressione = parseFloat(p.pressionearteriosasistolica || 0);
+  const colesterolo = parseFloat(p.colesterolo || 0);
+
+  if (score1 > 0) return score1;
+
+  function femaleRisk() {
+    if (fumo === 0) {
+      if (eta >= 40 && eta <= 44) {
+        if (pressione >= 100 && pressione <= 159) return 1;
+      }
+      if (eta >= 45 && eta <= 49) {
+        if (pressione >= 100 && pressione <= 139) return 1;
+        if (pressione >= 140 && pressione <= 159) return (colesterolo <= 200 ? 1 : 2);
+      }
+      if (eta >= 50 && eta <= 54) {
+        if (pressione >= 100 && pressione <= 159) return (colesterolo <= 200 ? 1 : 2);
+      }
+      if (eta >= 55 && eta <= 59) {
+        if (pressione >= 100 && pressione <= 139) return 1;
+        if (pressione >= 140 && pressione <= 159) return (colesterolo <= 200 ? 1 : 2);
+      }
+      if (eta >= 60 && eta <= 64) {
+        if (pressione >= 100 && pressione <= 119) return (colesterolo <= 250 ? 1 : 2);
+        return 2;
+      }
+      if (eta >= 65 && eta <= 69) {
+        if (pressione >= 100 && pressione <= 159) return 2;
+        return 3;
+      }
+      if (eta >= 70 && eta <= 74) {
+        if (pressione >= 100 && pressione <= 119) return (colesterolo <= 200 ? 1 : 2);
+        if (pressione >= 120 && pressione <= 159) return 2;
+        return (colesterolo <= 200 ? 2 : 3);
+      }
+      if (eta >= 75 && eta <= 79) {
+        if (pressione >= 100 && pressione <= 119) return 2;
+        if (pressione >= 120 && pressione <= 139) return (colesterolo <= 150 ? 2 : 3);
+        return 3;
+      }
+    } else {
+      return maleRisk(); // fumo == 1, usa regole maschili
+    }
+  }
+
+  function maleRisk() {
+    if (eta >= 40 && eta <= 44) {
+      if (pressione >= 100 && pressione <= 119) {
+        if (colesterolo <= 250) return 1;
+        return 2;
+      }
+      return 2;
+    }
+    if (eta >= 45 && eta <= 49) {
+      if (pressione >= 100 && pressione <= 159) return 2;
+      return (colesterolo <= 200 ? 2 : 3);
+    }
+    if (eta >= 50 && eta <= 54) {
+      if (pressione >= 100 && pressione <= 119) return (colesterolo <= 250 ? 1 : 2);
+      if (pressione >= 120 && pressione <= 159) return (colesterolo <= 250 ? 2 : 3);
+    }
+    if (eta >= 55 && eta <= 59) {
+      if (pressione >= 100 && pressione <= 139) return 2;
+      if (pressione >= 140 && pressione <= 159) return (colesterolo <= 250 ? 2 : 3);
+    }
+    if (eta >= 60 && eta <= 64) {
+      if (pressione >= 100 && pressione <= 119) return 2;
+      if (pressione >= 120 && pressione <= 139) return (colesterolo <= 250 ? 2 : 3);
+      if (pressione >= 140 && pressione <= 159) return (colesterolo <= 150 ? 2 : 3);
+      return 3;
+    }
+    if (eta >= 65 && eta <= 69) {
+      if (pressione >= 100 && pressione <= 119) return (colesterolo <= 200 ? 2 : 3);
+      return 3;
+    }
+    if (eta >= 70 && eta <= 74) {
+      if (pressione >= 100 && pressione <= 119) return 2;
+      if (pressione >= 120 && pressione <= 139) return (colesterolo <= 200 ? 2 : 3);
+      return 3;
+    }
+    if (eta >= 75 && eta <= 79) {
+      if (pressione >= 100 && pressione <= 119) return 2;
+      if (pressione >= 120 && pressione <= 139) return (colesterolo <= 150 ? 2 : 3);
+      return 3;
+    }
+    return 0;
+  }
+
+  return sesso === 2 ? femaleRisk() : maleRisk();
+}
+</script>
+</body>
+</html>
